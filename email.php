@@ -31,9 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Set email content
     $mail->setFrom('your_gmail_sender_email', 'Process Watcher');
     $mail->addAddress($recipientEmail);
-    $mail->addAttachment($attachmentPath);
     $mail->Subject = 'Process Watcher - ' . $processName . ' Finished';
     $mail->Body = $processName . ' has finished running.';
+
+    // Add attachment if it is set
+    if (!empty($attachmentPath)) {
+        $mail->addAttachment($attachmentPath);
+    }
 
     // Send the email
     if (!$mail->send()) {
