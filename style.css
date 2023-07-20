@@ -1,0 +1,17 @@
+body {
+  font-family: sans-serif;
+}
+tr td:first-child {
+  font-family: monospace;
+  font-size: 120%;
+}
+td {
+  text-align: center;
+}
+#emailForm {
+  width: 25em;
+  z-index: 2;
+  position: absolute;
+  top: 5%;
+  left: 25%;
+}

@@ -8,6 +8,7 @@
 <head>
     <title>Process Watcher</title>
     <script src="script.js" defer></script> <!-- Link the script.js file -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Process Watcher</h1>
