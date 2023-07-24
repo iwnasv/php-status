@@ -26,11 +26,11 @@ $clientIP = $_SERVER['REMOTE_ADDR'];
 
 // Disk usage and free space
 $disks = array(
-    '/' => '/',
+    '/dev/sda' => '/',
 );
 
 // Check /mnt for mounted filesystems
-$mountedFilesystems = shell_exec('mount | grep "^/mnt" | awk \'{print $3}\'');
+$mountedFilesystems = shell_exec('mount | grep "^/dev/sd[b-z]" | awk \'{print $3}\'');
 $mountedFilesystems = explode("\n", trim($mountedFilesystems));
 foreach ($mountedFilesystems as $filesystem) {
     if (!empty($filesystem)) {
@@ -48,7 +48,7 @@ foreach ($disks as $mountPoint => $disk) {
         'free' => $available
     );
 }
-
+var_dump($disks); var_dump($diskUsage); var_dump($mountedFilesystems);
 // Top 3 processes using most processor time
 $topProcesses = shell_exec('ps -eo pid,comm,%cpu --sort=-%cpu | head -n 4');
 
