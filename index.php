@@ -27,20 +27,14 @@ $clientIP = $_SERVER['REMOTE_ADDR'];
 // Disk usage and free space
 $disks = array();
 
-// Check /mnt for mounted filesystems
-$mountedFilesystems = shell_exec('mount | grep "^/dev/sd[b-z]" | awk \'{print $1,$3}\'');
-$mountedFilesystems = explode("\n", trim($mountedFilesystems));
-foreach ($mountedFilesystems as $filesystem) {
-    if (!empty($filesystem)) {
-        list($device, $mountPoint) = preg_split('/\s+/', $filesystem);
+// Read the disk usage information from the /proc/mounts file
+$mounts = file('/proc/mounts');
+foreach ($mounts as $mount) {
+    list($device, $mountPoint) = preg_split('/\s+/', $mount);
+    if (strpos($device, '/dev/sd') === 0) {
         $disks[$mountPoint] = $device;
     }
 }
-
-// Add the root filesystem
-$rootFilesystem = shell_exec("mount | grep ' / ' | awk '{print $1}'");
-$rootFilesystem = trim($rootFilesystem);
-$disks['/'] = $rootFilesystem;
 
 $diskUsage = array();
 foreach ($disks as $mountPoint => $device) {
