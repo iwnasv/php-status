@@ -1,51 +1,20 @@
 <?php
-require '../PHPMailer-master/PHPMailerAutoload.php'; // Include PHPMailer library
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
-    $recipientEmail = $_POST['recipientEmail'];
-    $attachmentPath = $_POST['attachmentPath'];
-    $pid = $_POST['pid'];
-    $processName = $_POST['processName'];
-
-    // Start the loop to check the process status every 5 seconds
-    $response = 'true';
-    while ($response === 'true') {
-        // Check the process status using watch_process.php
-        $watchProcessUrl = 'http://localhost/watch_process.php?pid=' . $pid;
-        $response = file_get_contents($watchProcessUrl);
-        sleep(5); // Wait for 5 seconds before checking again
-    }
-
-    // Process has finished, send the email
-    $mail = new PHPMailer;
-    $mail->isSMTP();
-    // Configure SMTP settings and API key
-    $mail->Host = 'your_smtp_host';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'your_gmail_sender_email';
-    $mail->Password = 'your_gmail_sender_api_key';
-    $mail->SMTPSecure = 'tls';
-    $mail->Port = 587;
-
-    // Set email content
-    $mail->setFrom('your_gmail_sender_email', 'Process Watcher');
-    $mail->addAddress($recipientEmail);
-    $mail->Subject = 'Process Watcher - ' . $processName . ' Finished';
-    $mail->Body = $processName . ' has finished running.';
-
-    // Add attachment if it is set
-    if (!empty($attachmentPath)) {
-        $mail->addAttachment($attachmentPath);
-    }
-
-    // Send the email
-    if (!$mail->send()) {
-        echo 'Mailer Error: ' . $mail->ErrorInfo;
-    } else {
-        echo 'Email sent successfully!';
-    }
-} else {
-    echo 'Invalid request method.';
+if (!isset($_GET['pid']) || !isset($_GET['email']) || !isset($_GET['file'])) {
+    echo "Missing required parameters.";
+    exit(1);
 }
+
+$pid = $_GET['pid'];
+$email = $_GET['email'];
+$file = $_GET['file'];
+// todo: filter
+// Construct the command to execute the email-on-exit.sh script
+// $command = "email-on-exit.sh -p $pid -e $email -f $file";
+$command = "email-on-exit.sh -p $pid -e $email -f $file";
+// todo: change the script to allow recepient and attachment arguments
+
+$output = shell_exec($command);
+
+// Output the result
+echo $output;
 ?>
