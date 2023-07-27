@@ -27,28 +27,28 @@ $clientIP = $_SERVER['REMOTE_ADDR'];
 // Disk usage and free space
 $disks = array();
 
-// Read the disk usage information from the /proc/mounts file
-$mounts = file('/proc/mounts');
-foreach ($mounts as $mount) {
-    list($device, $mountPoint) = preg_split('/\s+/', $mount);
-    if (strpos($device, '/dev/sd') === 0) {
-        $disks[$device] = $mountPoint;
+// Check /proc/mounts for mounted filesystems
+$mountedFilesystems = shell_exec('cat /proc/mounts | grep "^/dev/sd[a-z]" | awk \'{print $2}\'');
+$mountedFilesystems = explode("\n", trim($mountedFilesystems));
+
+foreach ($mountedFilesystems as $filesystem) {
+    if (!empty($filesystem)) {
+        $disks[$filesystem] = $filesystem;
     }
 }
 
 $diskUsage = array();
-foreach ($disks as $device => $mountPoint) {
-    exec("df -hP $mountPoint", $output); // Use -P option for proper output parsing
-    list($filesystem, $size, $used, $available, $percentage, $mounted) = preg_split('/\s+/', $output[1]);
+foreach ($disks as $mountPoint => $filesystem) {
+    $output = shell_exec("df -hP $filesystem | awk 'FNR==2{print $5\" \"$4}'");
+    list($usage, $free) = preg_split('/\s+/', trim($output));
 
     $diskUsage[$mountPoint] = array(
-        'usage' => $percentage,
-        'free' => $available
+        'usage' => $usage,
+        'free' => $free
     );
 }
 
-var_dump($disks); var_dump($diskUsage); var_dump($mountedFilesystems);
-// Top 3 processes using most processor time
+// Top 3 processes using the most processor time
 $topProcesses = shell_exec('ps -eo pid,comm,%cpu --sort=-%cpu | head -n 4');
 
 // Docker containers and their status
@@ -104,6 +104,16 @@ foreach ($dockerOutput as $dockerLine) {
 
     <h2>Top Processes by CPU Usage</h2>
     <pre><?php echo $topProcesses; ?></pre>
-    <a href="/process.php"><h2>Process watcher</h2></a>
+
+    <h2>Docker Containers</h2>
+    <ul>
+        <?php foreach ($dockerContainers as $containerStatus): ?>
+            <li><?php echo $containerStatus; ?></li>
+        <?php endforeach; ?>
+    </ul>
+
+    <a href="/process.php"><h2>Process Watcher</h2></a>
+
+    <script src="script.js"></script>
 </body>
 </html>
