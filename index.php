@@ -38,7 +38,7 @@ foreach ($mounts as $mount) {
 
 $diskUsage = array();
 foreach ($disks as $mountPoint => $device) {
-    exec("df -h $device", $output);
+    exec("df -hP $mountPoint", $output);
     list($filesystem, $size, $used, $available, $percentage, $mounted) = preg_split('/\s+/', $output[1]);
 
     $diskUsage[$mountPoint] = array(
