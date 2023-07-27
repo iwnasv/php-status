@@ -40,7 +40,7 @@
     <!-- Hidden email form -->
     <div id="emailForm" style="display: none;">
         <h2>Email Notification</h2>
-        <form id="emailNotificationForm">
+        <form id="emailNotificationForm" onsubmit="sendEmail(<?= $pid; ?>)">
             <label for="recipientEmail">Recipient Email Address:</label>
             <input type="text" id="recipientEmail" required>
             <br>
