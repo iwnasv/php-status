@@ -10,7 +10,7 @@ $file = $_GET['file'];
 // todo: filter
 // Construct the command to execute the email-on-exit.sh script
 // $command = "email-on-exit.sh -p $pid -e $email -f $file";
-$command = "email-on-exit.sh -p $pid -e $email -f $file";
+$command = "email-on-exit.sh " . $pid;
 // todo: change the script to allow recepient and attachment arguments
 
 $output = shell_exec($command);
