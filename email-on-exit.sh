@@ -8,12 +8,13 @@ fi
 
 # Store the PID of the process passed as an argument
 pid=$1
+name=$(ps -p $pid -o comm=)
 
 # Function to send an email
 function send_email() {
     local recipient_email="admin@localhost.test"
-    local subject="Process $pid has exited with status $exit_status"
-    local body="This email was generated on $(date '+%x, %X'). I hope it finds you well and may your future exit statuses be 0."
+    local subject="$name has exited with status $exit_status"
+    local body="Process number $pid has exited with: ${exit_status}. This email was generated on $(date '+%x, %X'). I hope it finds you well and may your future exit statuses be 0."
 
     echo "$body" | mail -s "$subject" "$recipient_email"
 }
