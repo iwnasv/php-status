@@ -32,13 +32,13 @@ $mounts = file('/proc/mounts');
 foreach ($mounts as $mount) {
     list($device, $mountPoint) = preg_split('/\s+/', $mount);
     if (strpos($device, '/dev/sd') === 0) {
-        $disks[$mountPoint] = $device;
+        $disks[$device] = $mountPoint;
     }
 }
 
 $diskUsage = array();
-foreach ($disks as $mountPoint => $device) {
-    exec("df -hP $mountPoint", $output);
+foreach ($disks as $device => $mountPoint) {
+    exec("df -hP $mountPoint", $output); // Use -P option for proper output parsing
     list($filesystem, $size, $used, $available, $percentage, $mounted) = preg_split('/\s+/', $output[1]);
 
     $diskUsage[$mountPoint] = array(
@@ -93,13 +93,13 @@ foreach ($dockerOutput as $dockerLine) {
             <th>Usage %</th>
             <th>Free Space</th>
         </tr>
-        <?php foreach ($diskUsage as $mountPoint => $usage): ?>
+        <?php foreach ($diskUsage as $mountPoint => $usageInfo) { ?>
             <tr>
                 <td><?php echo $mountPoint; ?></td>
-                <td><?php echo $usage['usage']; ?></td>
-                <td><?php echo $usage['free']; ?></td>
+                <td><?php echo $usageInfo['usage']; ?></td>
+                <td><?php echo $usageInfo['free']; ?></td>
             </tr>
-        <?php endforeach; ?>
+        <?php } ?>
     </table>
 
     <h2>Top Processes by CPU Usage</h2>
