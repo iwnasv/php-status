@@ -25,22 +25,26 @@ function getServiceStatus($service) {
 $clientIP = $_SERVER['REMOTE_ADDR'];
 
 // Disk usage and free space
-$disks = array(
-    '/dev/sda' => '/',
-);
+$disks = array();
 
 // Check /mnt for mounted filesystems
-$mountedFilesystems = shell_exec('mount | grep "^/dev/sd[b-z]" | awk \'{print $3}\'');
+$mountedFilesystems = shell_exec('mount | grep "^/dev/sd[b-z]" | awk \'{print $1,$3}\'');
 $mountedFilesystems = explode("\n", trim($mountedFilesystems));
 foreach ($mountedFilesystems as $filesystem) {
     if (!empty($filesystem)) {
-        $disks[$filesystem] = $filesystem;
+        list($device, $mountPoint) = preg_split('/\s+/', $filesystem);
+        $disks[$mountPoint] = $device;
     }
 }
 
+// Add the root filesystem
+$rootFilesystem = shell_exec("mount | grep ' / ' | awk '{print $1}'");
+$rootFilesystem = trim($rootFilesystem);
+$disks['/'] = $rootFilesystem;
+
 $diskUsage = array();
-foreach ($disks as $mountPoint => $disk) {
-    exec("df -h $disk", $output);
+foreach ($disks as $mountPoint => $device) {
+    exec("df -h $device", $output);
     list($filesystem, $size, $used, $available, $percentage, $mounted) = preg_split('/\s+/', $output[1]);
 
     $diskUsage[$mountPoint] = array(
@@ -48,6 +52,7 @@ foreach ($disks as $mountPoint => $disk) {
         'free' => $available
     );
 }
+
 var_dump($disks); var_dump($diskUsage); var_dump($mountedFilesystems);
 // Top 3 processes using most processor time
 $topProcesses = shell_exec('ps -eo pid,comm,%cpu --sort=-%cpu | head -n 4');
