@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html>
-<!--
-    TODO:
-    * EMAIL CHECKBOX
-    * LIVE FILTER (JS)
--->
 <head>
     <title>Process Watcher</title>
     <script src="script.js" defer></script> <!-- Link the script.js file -->
